@@ -5,10 +5,20 @@ from django.views import View
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib import messages
+from django.shortcuts import redirect
+
+# Mail handle imports
+from django.core.mail import EmailMessage
+from django.core.mail import send_mail
+
+from django.urls import reverse
+from django.utils.encoding import force_bytes, force_str, DjangoUnicodeDecodeError
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 import json
-
 from validate_email import validate_email
+from .utils import email_verification_token
 
 # Create your views here.
 class UserNameValidation(View):
@@ -59,7 +69,7 @@ class RegisterView(View):
 
 		context = { 'fieldValues': request.POST }
 
-		# valida3te user data : username , email, password
+		# validate user data : username , email, password
 		if not User.objects.filter(username=username).exists():
 			if not User.objects.filter(email=email).exists():
 				if len(password) < 3:
@@ -68,15 +78,78 @@ class RegisterView(View):
 
 				# user creation is validated
 				user = User.objects.create_user(username=username, email=email, password=password)
-				# save user
+				# deactivate user util email confirmation
+				user.is_active = False
 				user.save()
+				
+				# Email handle
+				email_subject = 'Activate your account'
+
+				# handle email verification link
+				# get domain we are on
+				domain = get_current_site(request).domain
+				
+				# get user id encrypted
+				uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+				token = email_verification_token.make_token(user)
+
+				link = reverse('activate', kwargs={'uidb64':uidb64, 'token':token})	
+
+				# final activate_url concetinated
+				activate_url = 'http://' + domain + link
+
+
+				email_body = 'Hi ' + user.username + ' Please activate you account using the link belowe:\n' + activate_url 
+
+				email = EmailMessage(
+				    email_subject,
+				    email_body,
+				    'noreply@semycolon.com',
+				    [email],
+				)
+
+				email.send(fail_silently = False)
+				
 				return render(request, 'expenses/index.html')
 
 
 		return render(request, 'authentication/register.html')
 
 
+# User verificaiton to activate user after registration
+class VerificationView(View):
+	def get(self, request, uidb64, token):
 
+		# decode back user id 
+		user_id = force_str(urlsafe_base64_decode(uidb64))
+
+		# get user by id
+		user = User.objects.get(pk = user_id)
+
+		try:
+			# decode back user id 
+			user_id = force_str(urlsafe_base64_decode(uidb64))
+
+			# get user by id
+			user = User.objects.get(pk = user_id)
+
+			# activate user and save
+			user.is_active = True
+			user.save()
+
+			# check if user is already active 
+			if user.is_active:
+				print("User is already activated\n")
+				return redirect('login')
+		except Exception as e:
+        		pass 
+
+		return redirect('login')
+
+
+class LoginView(View):
+	def get(self, request):
+		return render(request, 'authentication/login.html')
 
 
 
