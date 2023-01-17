@@ -6,6 +6,11 @@ from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.contrib.auth import authenticate, login
+from django.contrib import auth
+
+#import messages
+from django.contrib import messages 
 
 # Mail handle imports
 from django.core.mail import EmailMessage
@@ -150,6 +155,28 @@ class VerificationView(View):
 class LoginView(View):
 	def get(self, request):
 		return render(request, 'authentication/login.html')
+
+	def post(self, request):
+		# get username and password
+		username = request.POST['username']
+		password = request.POST['password']
+		user = authenticate(request, username=username, password=password)
+
+		if user is not None:
+			login(request, user)
+			return render(request, 'expenses/index.html')
+		else:
+			messages.error(request, "Cradentials are invlaid try again")
+			return render(request, 'authentication/login.html')
+
+class LogoutView(View):
+	def post(self, request):
+		auth.logout(request)
+		return render(request, 'authentication/logout.html')
+
+
+
+
 
 
 
