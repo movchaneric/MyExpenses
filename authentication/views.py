@@ -164,6 +164,7 @@ class LoginView(View):
 
 		if user is not None:
 			login(request, user)
+			messages.success(request, user.username + " You are successfuly logged in")
 			return render(request, 'expenses/index.html')
 		else:
 			messages.error(request, "Cradentials are invlaid try again")
@@ -171,6 +172,7 @@ class LoginView(View):
 
 class LogoutView(View):
 	def post(self, request):
+		messages.success(request, request.user.username + " You are successfuly logged out")
 		auth.logout(request)
 		return render(request, 'authentication/logout.html')
 

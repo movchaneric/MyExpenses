@@ -1,15 +1,19 @@
 {% extends 'expenses/base_index.html' %}
 {% block content %}
 
-<h1>Expenses list</h1>
 
-<ul class="list-group">
-  <li class="list-group-item">Bought Beer</li>
-  <li class="list-group-item">Bought Beer</li>
-  <li class="list-group-item">Bought Beer</li>
-  <li class="list-group-item">Bought Beer</li>
-</ul>
-  
-</ul>
+
+<div class="container">
+	{% include 'expenses/messages.html' %}
+	<h1>Expenses list</h1>
+
+	<ul class="list-group">
+	  <li class="list-group-item">Bought Beer</li>
+	  <li class="list-group-item">Bought Beer</li>
+	  <li class="list-group-item">Bought Beer</li>
+	  <li class="list-group-item">Bought Beer</li>
+	</ul>
+
+</div>
 
 {% endblock %}
