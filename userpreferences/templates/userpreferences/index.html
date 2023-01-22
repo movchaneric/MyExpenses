@@ -1,0 +1,35 @@
+{% extends 'expenses/base_index.html' %}
+
+{% block content %}
+{% csrf_token %}
+
+<div class="container mt-3">
+	<h5>Preference Currency </h5>
+
+	<!-- messages -->
+	{% include 'expenses/messages.html' %}
+	
+	<form action="{% url 'preferences' %}" method="post">
+		{% csrf_token %}
+		<div class="input-group">
+		  <select class="custom-select" id="inputGroupSelect04" name="currency">
+		    <option selected>Choose...</option>
+
+		    {% for currency in currencies_arr %}
+		    	<option selected>{{currency.name}} -{{currency.value}}</option>
+		    {% endfor %}
+
+		  </select>
+
+		  <div class="input-group-append">
+		    <input class="btn btn-outline-secondary" type="submit" value="Save">
+		  </div>
+		</div>
+	</form>
+
+</div>
+
+
+
+
+{% endblock %}
