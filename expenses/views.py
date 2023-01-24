@@ -4,11 +4,17 @@ from .models import Expense,Category
 #import messages
 from django.contrib import messages
 from django.shortcuts import redirect
+from .models import Expense
 
 @login_required(login_url='authentication/login/')
 def index(request):
-	context = {}
+
+	expenses = Expense.objects.filter(owner=request.user)
+
+
+	context = {'expenses':expenses}
 	return render(request, 'expenses/index.html',context)
+
 
 def add_expense(request):
 	categories = Category.objects.all()
