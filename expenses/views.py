@@ -95,5 +95,7 @@ def delete_expense(request,id):
     messages.success(request, "Removed expense")
     return redirect('expenses')
 
+# Continue
+
 
 
